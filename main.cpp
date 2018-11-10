@@ -14,6 +14,17 @@ bool happen=false;
                 ///   function ///////////////////
 
 
+
+
+        ///         class and structure       /////////
+
+
+        struct point
+{ int x,y;
+};
+
+
+
 class enemy
 {
 
@@ -60,24 +71,23 @@ main()
 
     Texture texture;
     texture.loadFromFile("soldierSeatDownShoot.png");
-    Sprite circle;
-    circle.setTexture(texture);
+    RectangleShape circle;
+    circle.setSize(Vector2f(150.f,100.f));
+    circle.setTexture(&texture);
     circle.setScale(.7f,.7f);
     circle.setOrigin(circle.getPosition().x+115,circle.getPosition().y+50);
     circle.setPosition(200.f,500.f);
-        Texture background1,background2;
+
+        Texture background1,background2,background3;
 
         background1.loadFromFile("7f7c4ef4b62f622f944831f1be6eab7e.png");
         background2.loadFromFile("bg 2.png");
+          background3.loadFromFile("sprites-background-63.png");
 
 
-        Sprite back1(background1),back2(background1),back3(background2),back4(background2);
+        Sprite back1(background1),back2(background1),back3(background2),back4(background2),back5(background3),back6(background3);
 
-        int backy1=1;
-          int backy2=2249;
-
-        int backy3=4496;
-          int backy4=8436;
+        int backy1=1,backy2=2249,backy3=4496,backy4=8436,backy5=12376,backy6=15816;
 
     Font font;
     font.loadFromFile("AGENTORANGE.TTF");
@@ -92,8 +102,26 @@ main()
     bullet b1;
     vector<bullet>bullets;
 
+///  plat    /////////
 
+point plat[100];
+Texture te;
+te.loadFromFile("platform.png");
+Sprite splat;
+splat.setTexture(te);
+//splat.setScale(.1f,.1f);
+splat.setTextureRect(IntRect(0,0,70,20));
 
+if(back5.getPosition().x+1400<window.getSize().x)
+{
+      for (int i=0;i<60;i++)
+      {
+       plat[i].x=rand()%window.getSize().x;
+       plat[i].y=rand()%window.getSize().y;
+      }
+}
+int x=100,y=100,h=500,f=500;
+    float dx=0,dy=0;
 ///    enemy     /////
   // enemy *e1;
     Texture tex1,tex2;
@@ -123,7 +151,7 @@ enemy2.setTexture(&tex2);
     Vector2f ain;
 
 
-    float c,v,m,p,q,r,x,y;
+    float c,v,m,p,q,r;
  //int p,q,r;
  //if(){
     while(window.isOpen()&&hp>0)
@@ -157,6 +185,8 @@ enemy2.setTexture(&tex2);
         back2.setPosition(backy2,0);
   back3.setPosition(backy3,0);
         back4.setPosition(backy4,0);
+back5.setPosition(backy5,0);
+        back6.setPosition(backy6,0);
 
 
   ///    player update  ////////
@@ -164,35 +194,85 @@ enemy2.setTexture(&tex2);
         if(Keyboard::isKeyPressed(Keyboard::Up))
             {circle.move(0,-10.f);
             source.y=Right;
+            y--;
 
             }
         if(Keyboard::isKeyPressed(Keyboard::Down))
             {circle.move(0,10.f);
  source.y=Right;
-
+y++;
             }
         if(Keyboard::isKeyPressed(Keyboard::Right))
             {circle.move(.7f,0);
  source.y=Right;
  //back_change_right();
+ x++;
   backy1-=3;
      backy2-=3;
  backy3-=3;
      backy4-=3;
-
+backy5-=3;
+     backy6-=3;
             }
         if(Keyboard::isKeyPressed(Keyboard::Left))
            {circle.move(-.7f,0);
+           x--;
  //back_change_left();
     backy1+=3;
        backy2+=3;
         backy3+=3;
        backy4+=3;
+backy5+=3;
+       backy6+=3;
+}
 
+///   plat update and check landing        ///////
 
+if(back5.getPosition().x+1400<window.getSize().x)
+{  circle.setPosition(Vector2f(x,y));
+cout<<circle.getPosition().x<< "   "<<circle.getPosition().y<<endl;
+}
+      dy+=0.5f;
+    y+=dy;
+    dx+=.03f;
+   // x+=dx;
+    if (y>500)
+        dy=-10;
 
+	if (x>h)
+   {
+       for (int i=0;i<40;i++)
+    {
+      x=h;///y=300
+      dx=1;
+      plat[i].x=plat[i].x-dx;
+      if (plat[i].x>window.getSize().x)
+        {
+            plat[i].x=rand()%window.getSize().x;
+             plat[i].y=rand()%window.getSize().y;
+        if(plat[i].y<200)
+            plat[i].y=rand()%window.getSize().y;
+        if(plat[i].y>500)
+            plat[i].y=rand()%window.getSize().y;
+         if(plat[i].y<200)
+            plat[i].y=rand()%window.getSize().y;
+        if(plat[i].y>500)
+            plat[i].y=rand()%window.getSize().y;
+             if(plat[i].y<200)
+            plat[i].y=rand()%window.getSize().y;
+        if(plat[i].y>500)
+            plat[i].y=rand()%window.getSize().y;
+     }   }
+     //dx-=10;
+    }
 
-            }
+	for (int i=0;i<40;i++)
+    {if ((x-25>plat[i].x) && (x-55<plat[i].x+68)
+    && (y+20>plat[i].y) && (y+20<plat[i].y+14) && (dx>0))
+    {
+      dy=-10;
+    }}
+
         ///    update enemies    //////
         if(enemycount<40)
             enemycount++;
@@ -331,6 +411,8 @@ window.draw(back1);
 window.draw(back2);
 window.draw(back3);
 window.draw(back4);
+window.draw(back5);
+window.draw(back6);
 
         window.draw(text);
         for(size_t i=0; i<enemies1.size(); i++)
@@ -349,6 +431,14 @@ window.draw(circle);
             window.draw(bullets[i].shape);
         }
 
+if(back5.getPosition().x+1400<window.getSize().x){
+    for (int i=0;i<40;i++)
+    {
+    splat.setPosition(plat[i].x,plat[i].y);
+    window.draw(splat);
+//cout<<"hi"<<plat[i].y<<endl;
+    }
+}
         window.display();
          window.clear();
     }
