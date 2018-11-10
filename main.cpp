@@ -7,13 +7,9 @@
 using namespace std;
 using namespace sf;
 ///       variable   ///////////
-int score=0;
-  double backy1=1;
-                double backy2=2249;
-
-        double backy3=4496;
-                double backy4=8436;
-
+int score=0,hp=1000;
+float j=0.0;
+bool happen=false;
 
                 ///   function ///////////////////
 
@@ -67,7 +63,7 @@ main()
     Sprite circle;
     circle.setTexture(texture);
     circle.setScale(.7f,.7f);
-    circle.setOrigin(circle.getPosition().x+100,circle.getPosition().y+50);
+    circle.setOrigin(circle.getPosition().x+115,circle.getPosition().y+50);
     circle.setPosition(200.f,500.f);
         Texture background1,background2;
 
@@ -77,11 +73,11 @@ main()
 
         Sprite back1(background1),back2(background1),back3(background2),back4(background2);
 
-        double backy1=1;
-                double backy2=2249;
+        int backy1=1;
+          int backy2=2249;
 
-        double backy3=4496;
-                double backy4=8436;
+        int backy3=4496;
+          int backy4=8436;
 
     Font font;
     font.loadFromFile("AGENTORANGE.TTF");
@@ -100,17 +96,22 @@ main()
 
 ///    enemy     /////
   // enemy *e1;
-    Texture tex;
-    tex.loadFromFile("cheetah_PNG14852.png");
+    Texture tex1,tex2;
+    tex1.loadFromFile("Tau_Beast.png");
+tex2.loadFromFile("Tau_Beas reverse t.png");
 
-        RectangleShape enemy;
-    vector<RectangleShape>enemies;
+        RectangleShape enemy1,enemy2;
+    vector<RectangleShape>enemies1,enemies2;
     int enemycount=20;
-    enemy.setFillColor(Color::Green);
-    enemy.setSize(Vector2f(150.f,75.f));
-  // enemy.setOrigin(enemy.getSize().x/2,enemy.getSize().y/2);
+    //enemy.setFillColor(Color::Green);
+    enemy1.setSize(Vector2f(150.f,75.f));
+   enemy1.setOrigin(enemy1.getSize().x,0);
 
-enemy.setTexture(&tex);
+  enemy2.setSize(Vector2f(150.f,75.f));
+   enemy2.setOrigin(enemy2.getSize().x,0);
+
+enemy1.setTexture(&tex1);
+enemy2.setTexture(&tex2);
 
 ///   vectors      //////
     Vector2f playercenter;
@@ -124,7 +125,8 @@ enemy.setTexture(&tex);
 
     float c,v,m,p,q,r,x,y;
  //int p,q,r;
-    while(window.isOpen())
+ //if(){
+    while(window.isOpen()&&hp>0)
     {
 
         sf::Event event;
@@ -170,7 +172,7 @@ enemy.setTexture(&tex);
 
             }
         if(Keyboard::isKeyPressed(Keyboard::Right))
-            {circle.move(1.f,0);
+            {circle.move(.7f,0);
  source.y=Right;
  //back_change_right();
   backy1-=3;
@@ -180,7 +182,7 @@ enemy.setTexture(&tex);
 
             }
         if(Keyboard::isKeyPressed(Keyboard::Left))
-           {circle.move(-1.f,0);
+           {circle.move(-.7f,0);
  //back_change_left();
     backy1+=3;
        backy2+=3;
@@ -192,15 +194,57 @@ enemy.setTexture(&tex);
 
             }
         ///    update enemies    //////
-        if(enemycount<20)
+        if(enemycount<40)
             enemycount++;
 
-        if(enemycount>=20)
+        if(enemycount>=40)
         {
-           enemy.setPosition(rand()%window.getSize().x,rand()%window.getSize().y);
-              enemies.push_back(RectangleShape(enemy));
+             enemy1.setPosition(back1.getPosition().x+200,630.f);
+              enemies1.push_back(RectangleShape(enemy1));
+
+           enemy2.setPosition(back1.getPosition().x+1100.f,419.f);
+              enemies2.push_back(RectangleShape(enemy2));
+
+              enemy1.setPosition(back2.getPosition().x+200,630.f);
+              enemies1.push_back(RectangleShape(enemy1));
+
+           enemy2.setPosition(back2.getPosition().x+1100.f,419.f);
+              enemies2.push_back(RectangleShape(enemy2));
+
             enemycount=0;
+
+
         }
+
+    ///    enemy move and shooting    ////////////
+
+    for(size_t i=0;i<enemies1.size();i++)
+    {
+        enemyloc=Vector2f(enemies1[i].getPosition());
+
+
+          ai=enemyloc-playercenter;
+        p=ai.x*ai.x;
+        q=ai.y*ai.y;
+        r=p+q;
+        ain=ai/sqrt(r);
+
+        enemies1[i].move(-ain);
+    }
+
+     for(size_t i=0;i<enemies2.size();i++)
+    {
+        enemyloc=Vector2f(enemies2[i].getPosition());
+
+
+          ai=enemyloc-playercenter;
+        p=ai.x*ai.x;
+        q=ai.y*ai.y;
+        r=p+q;
+        ain=ai/sqrt(r);
+
+        enemies2[i].move(-ain);
+    }
 
         ///  shooting      //////
         if(Mouse::isButtonPressed(Mouse::Left)||Keyboard::isKeyPressed(Keyboard::Space))
@@ -214,40 +258,66 @@ enemy.setTexture(&tex);
         for(size_t i=0; i<bullets.size(); i++)
         {
             bullets[i].shape.move(bullets[i].currentvelocity);
-/// out of bounds   ///////
+///    bullet out of bounds   ///////
             if(bullets[i].shape.getPosition().x<0||bullets[i].shape.getPosition().x>window.getSize().x
                     ||bullets[i].shape.getPosition().y<0||bullets[i].shape.getPosition().y>window.getSize().y)
              {
                  bullets.erase(bullets.begin()+i);
-     //  break;
+
              }
 
-    ///    collision    ////
-   for(size_t k=0;k<enemies.size();k++)
-    {if(bullets[i].shape.getGlobalBounds().intersects(enemies[k].getGlobalBounds()))
-{enemies.erase(enemies.begin()+k);
+    ///    collision  with bullet and enemy  also checking player hp ////
+   for(size_t k=0;k<enemies1.size();k++)
+    {if(bullets[i].shape.getGlobalBounds().intersects(enemies1[k].getGlobalBounds()))
+{enemies1.erase(enemies1.begin()+k);
 bullets.erase(bullets.begin()+i);
 score+=3;
 break;
 }
+
     }
-        }
-
-        for(size_t i=0;i<enemies.size();i++)
-{
-
-  //    enemies[i].enem.move();
-
-            if(enemies[i].getPosition().x<0||enemies[i].getPosition().x>window.getSize().x
-                    ||enemies[i].getPosition().y<0||enemies[i].getPosition().y>window.getSize().y)
-             {
-                 enemies.erase(enemies.begin()+i);
-     //  break;
-             }
-
+       for(size_t k=0;k<enemies2.size();k++)
+    {if(bullets[i].shape.getGlobalBounds().intersects(enemies2[k].getGlobalBounds()))
+{enemies2.erase(enemies2.begin()+k);
+bullets.erase(bullets.begin()+i);
+score+=3;
+break;
 }
+
+    }
+
+        }
+///   enemy  out of area   remove   ////////////
+        for(size_t i=0;i<enemies1.size();i++)
+        {
+            if(enemies1[i].getPosition().x<0||enemies1[i].getPosition().x>window.getSize().x
+                    ||enemies1[i].getPosition().y<0||enemies1[i].getPosition().y>window.getSize().y)
+             {
+                 enemies1.erase(enemies1.begin()+i);
+
+             }
+if(circle.getGlobalBounds().intersects(enemies1[i].getGlobalBounds()))
+{hp--;
+    break;
+    }
+            }
+             for(size_t i=0;i<enemies2.size();i++)
+        {
+            if(enemies2[i].getPosition().x<0||enemies2[i].getPosition().x>window.getSize().x
+                    ||enemies2[i].getPosition().y<0||enemies2[i].getPosition().y>window.getSize().y)
+             {
+                 enemies2.erase(enemies2.begin()+i);
+
+             }
+            if(circle.getGlobalBounds().intersects(enemies2[i].getGlobalBounds()))
+{hp--;
+    break;
+    }
+            }
+
+
         char a[100],b[100];
-        sprintf(a," your position x=%d   y=%d \n \n \t score :  %d ",pos.x,pos.y,score);
+        sprintf(a," your position x=%d   y=%d \t\t\t\t\t \t\t\t  hp = %d\n \n \t score :  %d \n",pos.x,pos.y,hp,score);
         text.setString(a);
 
   ///    draw     ////////////
@@ -263,12 +333,16 @@ window.draw(back3);
 window.draw(back4);
 
         window.draw(text);
-        for(size_t i=0; i<enemies.size(); i++)
+        for(size_t i=0; i<enemies1.size(); i++)
         {
-            window.draw(enemies[i]);
+            window.draw(enemies1[i]);
 
             }
+ for(size_t i=0; i<enemies2.size(); i++)
+        {
+            window.draw(enemies2[i]);
 
+            }
 window.draw(circle);
         for(size_t i=0; i<bullets.size(); i++)
         {
