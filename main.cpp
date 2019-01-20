@@ -1,28 +1,15 @@
 #include<bits/stdc++.h>
 #include<SFML/Graphics.hpp>
 #include<SFML/System.hpp>
-#include<SFML/Window.hpp>
-#include<SFML/Audio.hpp>
-#include<SFML/Network.hpp>
-#include<math.h>
-#include<stdlib.h>
-#include<cstdlib>
-#include <time.h>
-#include<bits/stdc++.h>
 
 
 
 using namespace std;
 using namespace sf;
+
 ///       variable   ///////////
 int score=0,hp=10000;
-float j=0.0;
-bool happen=false;
 
-
-    enum dir{Left,Right};
-    int sourcex=138,sourcey=Right;
-    Vector2i source(1,Right);
 
 
     RenderWindow window(VideoMode(1300,770),"game");
@@ -34,9 +21,6 @@ void g2(void);
 
         ///         class and structure       /////////
 
-
-struct point
-{ int x,y;};
 
 
 class bullet
@@ -54,11 +38,48 @@ public:
     }
 };
 
+class stone
+{
+public:
+    Sprite shape;
+    int hp=30,hpmax;
+    stone(Texture *texture,Vector2f pos)
+    {
+        this->hpmax=rand()%6+4;
+        this->hp=this->hpmax;
+
+        this->shape.setTexture(*texture);
+        this->shape.scale(.08f,.08f);
+      this->shape.setPosition(pos);
+
+
+        }
+};
+class coin
+{
+public:
+    Sprite shape;
+
+    coin(Texture *texture,Vector2f pos)
+    {
+
+        this->shape.setTexture(*texture);
+        this->shape.scale(.3f,.3f);
+      this->shape.setPosition(pos);
+
+
+        }
+};
 void main_menu()
 {
 
 srand(time(0));
  //window.setFramerateLimit(60);
+ Texture tr;
+ tr.loadFromFile("tunnel_01_shot_01.jpg");
+ Sprite sd(tr);
+ sd.setPosition(0,0);
+
      Font font;
     font.loadFromFile("AGENTORANGE.TTF");
     Text text,t2,t4,t3,t1,t5;
@@ -72,10 +93,10 @@ srand(time(0));
 
 
     text.setPosition(220,30);
-  text.setString(" i don't know ");
+  text.setString("first level ");
 
     t1.setPosition(220,130);
-        t1.setString("select level");
+        t1.setString("second level");
 
         t2.setPosition(220,250);
         t2.setString("Information ");
@@ -97,16 +118,13 @@ while(window.isOpen())
                 window.close();
         }
 
-//if(Vector2i(text.getGlobalBounds()).intersects(Vector2i(Mouse::getPosition(window).getGlobalBounds())))
-//cout<<t3.getPosition().x<<" "<<t3.getPosition().y;
-
 Vector2f n=(Vector2f)Mouse::getPosition(window);
-//cout<<n.x<<" "<<n.y<<endl;
+
 
 if((n.x>=210&&n.x<=410)&&(n.y>=125&&n.y<=155))
     {t1.setFillColor(Color::Magenta);
-    if(Mouse::isButtonPressed(Mouse::Left))
-    g1();
+    if(Mouse::isButtonPressed(Mouse::Left)||Keyboard::isKeyPressed(Keyboard::Space))
+    g2();
     }
     else
         t1.setFillColor(Color::Red);
@@ -118,17 +136,22 @@ if((n.x>=210&&n.x<=410)&&(n.y>=125&&n.y<=155))
         t2.setFillColor(Color::Red);
 
 
+if((n.x>=210&&n.x<=400)&&(n.y>=27&&n.y<=60))
+      {//window.clear(Color::Green);
+          text.setFillColor(Color::Magenta);
+    if(Mouse::isButtonPressed(Mouse::Left)||Keyboard::isKeyPressed(Keyboard::Space))
+    g1();
+    }
+    else
+text.setFillColor(Color::Red);
 if((n.x>=210&&n.x<=290)&&(n.y>=380&&n.y<=410))
-    {t3.setFillColor(Color::Magenta);
-    if(Mouse::isButtonPressed(Mouse::Left))
+    {window.clear(Color::Green);
+    if(Mouse::isButtonPressed(Mouse::Left)||Keyboard::isKeyPressed(Keyboard::Space))
     window.close();
     }
     else
-        t3.setFillColor(Color::Red);
-
-if((n.x>=215&&n.x<=450)&&(n.y>=27&&n.y<=60))
-window.clear(Color::Green);
-
+        {t3.setFillColor(Color::Red);
+window.draw(sd);}
 window.draw(text);
 //window.draw(r1);
 window.draw(t3);
@@ -137,7 +160,7 @@ window.draw(t1);
 
 
 window.display();
-//
+
    // clearviewport();
 window.clear();
 }
@@ -152,8 +175,7 @@ main()
 
 srand(time(0));
  window.setFramerateLimit(60);
-g1();
-
+main_menu();
 
 }
 
@@ -162,13 +184,14 @@ void g1()
     {
         srand(time(0));
         Texture texture,shiptex;
-    texture.loadFromFile("soldierSeatDownShoot.png");
-    RectangleShape circle;
-    circle.setSize(Vector2f(150.f,100.f));
-    circle.setTexture(&texture);
-    circle.setScale(.7f,.7f);
-    circle.setOrigin(circle.getPosition().x+115,circle.getPosition().y+50);
-    circle.setPosition(200.f,500.f);
+    texture.loadFromFile("solderAll.png");
+
+
+    IntRect recsourcesprite(0,0,129,181),resourcesprite(0,181,129,387);
+    Sprite sp(texture,recsourcesprite);
+  sp.setScale(.7f,.7f);
+    sp.setOrigin(sp.getPosition().x+115,sp.getPosition().y+50);
+    sp.setPosition(200.f,500.f);
 
     shiptex.loadFromFile("dfh45hygd.jpg");
     RectangleShape ship;
@@ -184,7 +207,23 @@ void g1()
 
         Sprite back1(background1);
 
+/// stone coin  all///
+ Texture stonetex;
+    stonetex.loadFromFile("stne.png");
 
+    Texture tex;
+    tex.loadFromFile("iruytruii.jpg");
+
+     IntRect rectsourcesprite(0,0,70,70);
+    Sprite s(tex,rectsourcesprite);
+
+Clock clock,cloc,clo;
+
+vector<stone>stones;
+ int stonetimer=0,f=-1;
+
+ vector<coin>coins;
+ int coinfalltimer=0;
 
     Font font;
     font.loadFromFile("AGENTORANGE.TTF");
@@ -194,13 +233,27 @@ void g1()
     text.setFillColor(Color::Red);
     text.setPosition(10.f,30.f);
 
+    Text hptext;
+    hptext.setFont(font);
+    hptext.setCharacterSize(14);
+    hptext.setFillColor(Color::White);
+    hptext.setPosition(window.getSize().x-100,40.f);
+
+
+    Text enhptext;
+    enhptext.setFont(font);
+    enhptext.setCharacterSize(18);
+    enhptext.setFillColor(Color::Yellow);
+
 
 ///     bullet    //////////
     bullet b1;
     vector<bullet>bullets;
-    Texture tex1,tex2;
+    Texture tex1,tex2,tex4,tex5;
     tex1.loadFromFile("Tau_Beas reverse t.png");
 tex2.loadFromFile("Tau_Beas reverse t.png");
+tex4.loadFromFile("mothman-transparent-adorable-3.png");
+tex5.loadFromFile("mothman-transparent-adorable-3.png");
 
         RectangleShape enemy1,enemy2;
     vector<RectangleShape>enemies1,enemies2;
@@ -225,7 +278,7 @@ enemy2.setTexture(&tex2);
     Vector2f ain;
 
 
-    float c,v,m,p,q,r;
+    float c,v,m,p,q,r,z=-.2;
 
     while(window.isOpen()&&hp>0)
     {
@@ -237,16 +290,16 @@ enemy2.setTexture(&tex2);
                 window.close();
 
             if(Keyboard::isKeyPressed(Keyboard::Escape))
-                main();
+                main_menu();
         }
 
     if(hp<3)
         main_menu();
         Vector2i pos,curr;
-        pos=Vector2i(circle.getPosition());
+        pos=Vector2i(sp.getPosition());
 
         ///    update   ////////////
-        playercenter=Vector2f(circle.getPosition().x,circle.getPosition().y);
+        playercenter=Vector2f(sp.getPosition().x,sp.getPosition().y);
 
         mouseposwindow=Vector2f(Mouse::getPosition(window));
         aimdir=mouseposwindow-playercenter;
@@ -262,28 +315,42 @@ enemy2.setTexture(&tex2);
   ///    player update  ////////
 
         if(Keyboard::isKeyPressed(Keyboard::Up))
-            {circle.move(0,-10.f);
-            source.y=Right;
-           // y--;
+            {sp.move(0,-10.f);
 
             }
         if(Keyboard::isKeyPressed(Keyboard::Down))
-            {circle.move(0,10.f);
- source.y=Right;
-//  y++;
-            }
+            {sp.move(0,10.f);
+         }
         if(Keyboard::isKeyPressed(Keyboard::Right))
-            {circle.move(7.f,0);
- source.y=Right;
- //back_change_right();
- //x++;
+            {sp.move(4.f,0);
+
+  if(cloc.getElapsedTime().asSeconds()>.09f)
+        {if(recsourcesprite.left>=382)
+            recsourcesprite.left=0;
+            else
+            recsourcesprite.left+=140;
+
+            sp.setTextureRect(recsourcesprite);
+            cloc.restart();
+
+        }
 
 
             }
         if(Keyboard::isKeyPressed(Keyboard::Left))
-           {circle.move(-7.f,0);
-   //        x--;
- //back_change_left();
+           {sp.move(-4.f,0);
+   if(clo.getElapsedTime().asSeconds()>.09f)
+        {if(resourcesprite.left<=0)
+            resourcesprite.left=382;
+            else
+            resourcesprite.left-=127;
+
+            sp.setTextureRect(resourcesprite);
+            clo.restart();
+
+        }
+
+
 
 }
 
@@ -314,12 +381,12 @@ enemy2.setTexture(&tex2);
            if(ship.getPosition().x>=window.getSize().x-ship.getSize().x)
             dir=0;
             if(dir==0)
-                {ship.move(-5,0);
+                {ship.move(-2,0);
                 }
     if(ship.getPosition().x<=0)
            dir=1;
            if(dir==1)
-                {ship.move(5,0);
+                {ship.move(2,0);
                 }
 
 
@@ -331,7 +398,9 @@ enemy2.setTexture(&tex2);
     for(size_t i=0;i<enemies1.size();i++)
     {
         enemyloc=Vector2f(enemies1[i].getPosition());
-
+if(enemies1[i].getPosition().y<440)
+{enemies1[i].setTexture(&tex1);
+}
     if(enemies1[i].getPosition().y<290&&enemies1[i].getPosition().y>12)
     {
 
@@ -350,7 +419,8 @@ enemy2.setTexture(&tex2);
         enemies1[i].move(0.f,1.f);
    }
     else if(enemies1[i].getPosition().y>=440)
-        {
+        {enemies1[i].setTexture(&tex4);
+//enemy2.setTexture(&tex5);
              ai=enemyloc-playercenter;
         p=ai.x*ai.x;
         q=ai.y*ai.y;
@@ -367,6 +437,7 @@ enemy2.setTexture(&tex2);
 
  if((enemies2[i].getPosition().x>=535&&enemies2[i].getPosition().x<=1595)&&enemies2[i].getPosition().y<430)
     {
+enemies2[i].setTexture(&tex2);
         if(enemies2[i].getPosition().y>=2&&enemies2[i].getPosition().y<230)
         enemies2[i].move(0.f,1.f);
 
@@ -387,6 +458,8 @@ enemy2.setTexture(&tex2);
      }
      else
      {
+         enemies2[i].setTexture(&tex4);
+//enemy2.setTexture(&tex5);
   ai=enemyloc-playercenter;
         p=ai.x*ai.x;
         q=ai.y*ai.y;
@@ -424,9 +497,7 @@ bullets.erase(bullets.begin()+i);
 score+=3;
 break;
 }
-
-    }
-       for(size_t k=0;k<enemies2.size();k++)
+      for(size_t k=0;k<enemies2.size();k++)
     {if(bullets[i].shape.getGlobalBounds().intersects(enemies2[k].getGlobalBounds()))
 {enemies2.erase(enemies2.begin()+k);
 bullets.erase(bullets.begin()+i);
@@ -435,8 +506,86 @@ break;
 }
 
     }
+    }
+
+
+
+
+            ///  /         stone  collision    ////////
+    for(size_t k=0;k<stones.size();k++)
+{
+    if(bullets[i].shape.getGlobalBounds().intersects(stones[k].shape.getGlobalBounds()))
+    {
+        if(stones[k].hp==1)
+       {
+            stones.erase(stones.begin()+k);
+       score+=stones[k].hpmax;
+       }
+       else
+        stones[k].hp--;
+
+       bullets.erase(bullets.begin()+i);
+        break;
+    }
+    }
+
 
         }
+      ///  update enemies     ////
+if(stonetimer<40)
+    stonetimer++;
+ if(stonetimer>=40)
+ {
+        stones.push_back(stone(&stonetex,ship.getPosition()));
+stonetimer=-100;
+ }
+ for(size_t i=0;i<stones.size();i++)
+{
+    stones[i].shape.move(z,5.f);
+    if(stones[i].shape.getPosition().y>=560)
+        stones.erase(stones.begin()+i);
+    if(stones[i].shape.getGlobalBounds().intersects(sp.getGlobalBounds()))
+  {stones.erase(stones.begin()+i);
+    hp-=stones[i].hp;
+
+  }
+}
+
+///      update coins ///
+if(coinfalltimer<750)
+    coinfalltimer++;
+ if(coinfalltimer==750)
+ {
+        coins.push_back(coin(&tex,ship.getPosition()));
+coinfalltimer=0;
+ }
+ for(size_t i=0;i<coins.size();i++)
+{
+    coins[i].shape.move(0,2.f);
+
+        if(clock.getElapsedTime().asSeconds()>.05f)
+        {if(rectsourcesprite.left>=202)
+            rectsourcesprite.left=0;
+            else
+            rectsourcesprite.left+=80;
+
+            coins[i].shape.setTextureRect(rectsourcesprite);
+           // coins[i].shape.move(0,.3f);
+            clock.restart();
+
+        }
+
+    if(coins[i].shape.getPosition().y>=560)
+        coins.erase(coins.begin()+i);
+    if(coins[i].shape.getGlobalBounds().intersects(sp.getGlobalBounds()))
+  {coins.erase(coins.begin()+i);
+    hp+=10;
+ coins.push_back(coin(&tex,ship.getPosition()));
+  }
+}
+
+
+
 ///   enemy  out of area   remove   ////////////
         for(size_t i=0;i<enemies1.size();i++)
         {
@@ -446,7 +595,7 @@ break;
                  enemies1.erase(enemies1.begin()+i);
 
              }
-if(circle.getGlobalBounds().intersects(enemies1[i].getGlobalBounds()))
+if(sp.getGlobalBounds().intersects(enemies1[i].getGlobalBounds()))
 {hp--;
     break;
     }
@@ -459,7 +608,7 @@ if(circle.getGlobalBounds().intersects(enemies1[i].getGlobalBounds()))
                  enemies2.erase(enemies2.begin()+i);
 
              }
-            if(circle.getGlobalBounds().intersects(enemies2[i].getGlobalBounds()))
+            if(sp.getGlobalBounds().intersects(enemies2[i].getGlobalBounds()))
 {hp--;
     break;
     }
@@ -474,19 +623,18 @@ if(circle.getGlobalBounds().intersects(enemies1[i].getGlobalBounds()))
 
   ///    draw     ////////////
 
-circle.setTextureRect(IntRect(source.x*1,source.y*1,130,155));
 
-if(circle.getPosition().x<200)
-    circle.setPosition(Vector2f(200.f,circle.getPosition().y));
+if(sp.getPosition().x<200)
+    sp.setPosition(Vector2f(200.f,sp.getPosition().y));
 
-    if(circle.getPosition().x>1200)
-     circle.setPosition(Vector2f(1200.f,circle.getPosition().y));
+    if(sp.getPosition().x>1200)
+     sp.setPosition(Vector2f(1200.f,sp.getPosition().y));
 
-if(circle.getPosition().y>550)
-      circle.setPosition(Vector2f(circle.getPosition().x,550.f));
+if(sp.getPosition().y>500)
+      sp.setPosition(Vector2f(sp.getPosition().x,500.f));
 
-    if(circle.getPosition().y<450)
-      circle.setPosition(Vector2f(circle.getPosition().x,450.f));
+    if(sp.getPosition().y<450)
+      sp.setPosition(Vector2f(sp.getPosition().x,450.f));
 
 
 
@@ -504,8 +652,22 @@ window.draw(back1);
             window.draw(enemies2[i]);
 
             }
+             for(size_t i=0; i<stones.size(); i++)
+        {
+            char ara[100];
+        sprintf(ara,"\n         %d",stones[i].hp);
+       enhptext.setString(ara);
+        enhptext.setPosition(stones[i].shape.getPosition().x,stones[i].shape.getPosition().y);
+           window.draw(enhptext);
+            window.draw(stones[i].shape);
+        }
+ for(size_t i=0; i<coins.size(); i++)
+        {
+            window.draw(coins[i].shape);
+        }
             window.draw(ship);
-window.draw(circle);
+            window.draw(sp);
+        //window.draw(sp);
         for(size_t i=0; i<bullets.size(); i++)
         {
             window.draw(bullets[i].shape);
@@ -523,166 +685,127 @@ window.draw(circle);
 {
     srand(time(0));
 
-
     window.setFramerateLimit(60);
+    Texture texture;
+    IntRect recsourcesprite(0,0,129,181),resourcesprite(0,181,129,387);
+    Sprite sp(texture,recsourcesprite);
 
-    Texture t1,t2,t3,b1b,e1e;
-    t1.loadFromFile("images/7f7c4ef4b62f622f944831f1be6eab7e.png");
-    t2.loadFromFile("images/platform.png");
-    t3.loadFromFile("images/doodle.png");
-    b1b.loadFromFile("enemy bullet back.png");
-    e1e.loadFromFile("villan.png");
-    //e1e.setOrigin(400,400);
-        t1.setRepeated(true);
-    Sprite sBackground(t1), sPlat(t2), sPers(t3);
-    sPers.setScale(.8,.8);
-    sBackground.setTextureRect(IntRect(0,0,window.getSize().x,window.getSize().y));
 
-Sprite enem;
-enem.setScale(.5,.5);
-enem.setTexture(e1e);
-//enem.setOrigin(100,100);
 
-    Sprite bulle;
-bulle.setScale(.4f,.4f);
-bulle.setTexture(b1b);
-//bulle.setOrigin(150,150);
+    texture.loadFromFile("solderAll.png");
 
-    point plat[100];
-    vector<Sprite>enem1;
-vector<Sprite>bul;
-enem1.push_back(Sprite(enem));
-bul.push_back(Sprite(bulle));
-int ebs=10;
 
-    for (int i=0;i<40;i++)
-      {
-       plat[i].x=rand()%window.getSize().x;
-       plat[i].y=rand()%window.getSize().y;
-      }
+  sp.setScale(.7f,.7f);
+    sp.setOrigin(sp.getPosition().x+115,sp.getPosition().y+50);
+    sp.setPosition(200.f,500.f);
+Vertex line;
+	line.color=Color::White;
+	Vector2f startPos;
+	Vector2f mousePos;
+	bool isDrawRectangle = false;
+    Clock cloc,clo;
+	bool done = false;
+	while (done == false)
+	{
+		window.clear();
 
-	int x=100,y=100,h=500,f=500,g=10;
-    float dx=0,dy=0;
+		Event event;
+		while (window.pollEvent(event))
+		{
+			switch (event.type)
+			{
+			case Event::Closed:
+				done = true;
+				break;
+			case Event::MouseButtonPressed:
+				switch (event.mouseButton.button)
+				{
+				case Mouse::Button::Left:
+					isDrawRectangle = true;
+					startPos = mousePos;
+					break;
+				default:
+					break;
+				}
+				break;
+			case Event::MouseButtonReleased:
+				switch (event.mouseButton.button)
+				{
+				case Mouse::Button::Left:
+					isDrawRectangle = false;
+					break;
+				default:
+					break;
+				}
+				break;
+			case Event::MouseMoved:
+				mousePos.x = event.mouseMove.x;
+				mousePos.y = event.mouseMove.y;
+				break;
+			default:
+				break;
+			}
+		}
+		if(Keyboard::isKeyPressed(Keyboard::Escape))
+      window.close();
+      //main_menu();
+		if(Keyboard::isKeyPressed(Keyboard::Left))
+            {sp.move(-3,0);
 
-    while (window.isOpen()&&hp>0)
-    {
-        Event e;
-        while (window.pollEvent(e))
-        {
-            if (e.type == Event::Closed)
-                window.close();
+
+   if(clo.getElapsedTime().asSeconds()>.08f)
+        {if(resourcesprite.left<=0)
+            resourcesprite.left=382;
+            else
+            resourcesprite.left-=121;
+
+            sp.setTextureRect(resourcesprite);
+            clo.restart();
+
         }
 
-    if (Keyboard::isKeyPressed(Keyboard::Right)||Keyboard::isKeyPressed(Keyboard::D)) x+=3;
-    if (Keyboard::isKeyPressed(Keyboard::Left)) x-=3;
-     if (Keyboard::isKeyPressed(Keyboard::Up)) y-=5;
-      if (Keyboard::isKeyPressed(Keyboard::Down)) y+=5;
+        }
+		if(Keyboard::isKeyPressed(Keyboard::Right))
+            {sp.move(3,0);
+         if(cloc.getElapsedTime().asSeconds()>.08f)
+        {if(recsourcesprite.left>=382)
+            recsourcesprite.left=0;
+            else
+            recsourcesprite.left+=142;
 
-    dy+=0.6f;
-    y+=dy;
-    dx+=.03f;
-    x+=dx;
-    if (y>500)
-        dy=-10;
-	if (x>h)
-   {
-       for (int i=0;i<40;i++)
-    {
-      x=h;///y=300
-      dx=1;
-      plat[i].x=plat[i].x-dx;
-    if (plat[i].x>window.getSize().x)
-        {
-            plat[i].x=rand()%window.getSize().x;
-             plat[i].y=rand()%window.getSize().y;
+            sp.setTextureRect(recsourcesprite);
+            cloc.restart();
 
-             s:
-             if(plat[i].y>520||plat[i].y<70)
-             {
-                plat[i].y=rand()%window.getSize().y;
-                goto s;
-             }
+        }
 
-     }
             }
-
-
-        }
-            if(g<30)
-                g++;
-            if(g>=30){
-            enem.setPosition(Vector2f(rand()%(int)window.getSize().x,rand()%200));
-          enem1.push_back(Sprite(enem));
-            g=0;
-          for(int i=0;i<2;i++){
-    bulle.setPosition(enem1[i].getPosition().x,enem1[i].getPosition().y+40);
-    bul.push_back(Sprite(bulle));
-
-   }
-   }
-
-	for (int i=0;i<40;i++)
+		if(Keyboard::isKeyPressed(Keyboard::Up))
+            sp.move(0,-3);
+    //cout<<line.position.x<<" "<<line.position.y<<endl;
+		if(startPos.x==sp.getPosition().x)
+     {if(Keyboard::isKeyPressed(Keyboard::Down))
+            sp.move(0,0);
+     }
+else
     {
-        if ((x+50>plat[i].x) && (x+20<plat[i].x+68)
-    && (y+70>plat[i].y) && (y+70<plat[i].y+14) && (dx>0))
-    {
-      dy=-10;
-    }}
-
-
-   for(size_t i=0;i<enem1.size();i++)
-{
-   enem1[i].move(0,.5f);
-
-    if(enem1[i].getPosition().y<=100)
-        enem1.erase(enem1.begin()+i);
-        //cout<<enem1[i].getPosition().x<<"     "<<enem1[i].getPosition().y<<endl;
-if(enem1[i].getGlobalBounds().intersects(sPers.getGlobalBounds()))
-  {enem1.erase(enem1.begin()+i);
-  //player.hp--;
-
-  }
-}
-
-    for(size_t i=0;i<bul.size();i++)
-{
-    bul[i].move(-5.f,0);
-    if(bul[i].getPosition().x<=-100)
-        bul.erase(bul.begin()+i);
- if(bul[i].getGlobalBounds().intersects(sPers.getGlobalBounds()))
-  {bul.erase(bul.begin()+i);
-  //player.hp--;
-
- }
-}
-
-
-window.clear();
-	sPers.setPosition(x,y);
-
-    window.draw(sBackground);
-    window.draw(sPers);
-   for(size_t i=0;i<bul.size();i++)
-{
-
-    window.draw(bul[i]);
-}
-  for (int i=0;i<enem1.size();i++)
-    {
-// enem1.setPosition(enbp[i].x,enbp[i].y);
-    window.draw(enem1[i]);
-
+        if(Keyboard::isKeyPressed(Keyboard::Down))
+        sp.move(0,3);
     }
+    if(sp.getPosition().y>=600)
+    sp.setPosition(sp.getPosition().x,600);
+           Vertex line[]={
+        Vertex(Vector2f(startPos.x,startPos.y))
+,Vertex(Vector2f(mousePos.x,mousePos.y))  };
+line[0].position=Vector2f(startPos.x,startPos.y);
 
 
-    for (int i=0;i<40;i++)
-    {
-    sPlat.setPosition(plat[i].x,plat[i].y);
-    window.draw(sPlat);
+if (isDrawRectangle)
+			window.draw(line,2,Lines);
+        window.draw(sp);
+        // window.draw(spe);
+		window.display();
+	}
 
-    }
-
-    window.display();
 
 }
-}
+
