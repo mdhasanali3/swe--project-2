@@ -9,7 +9,7 @@ using namespace sf;
 
 ///       variable   ///////////
 int score=0,hp=10000;
-
+ int  dir;
 
 
     RenderWindow window(VideoMode(1300,770),"game");
@@ -25,16 +25,25 @@ void g2(void);
 
 class bullet
 {
+
 public:
+
+    //Texture bultex;
+      //  bultex.loadFromFile("billet.jpg");
+
     CircleShape shape;
+    //shape.setTexture(&bultex);
     Vector2f currentvelocity;
     float maxspeed;
 
     bullet(float radius=5.f)
         :currentvelocity(0.f,0.f),maxspeed(15.f)
     {
+     //   this->shape.setTexture(&tex);
+
+
         this->shape.setRadius(radius);
-        this->shape.setFillColor(Color::Red);
+       // this->shape.setFillColor(Color::Red);
     }
 };
 
@@ -50,9 +59,12 @@ public:
 
         this->shape.setTexture(*texture);
         this->shape.scale(.08f,.08f);
-      this->shape.setPosition(pos);
+        if(dir==1)
+      this->shape.setPosition(pos.x+120,pos.y+20);
+        else
+            this->shape.setPosition(pos.x+70,pos.y+20);
 
-
+    cout<<dir<<endl;
         }
 };
 class coin
@@ -64,12 +76,30 @@ public:
     {
 
         this->shape.setTexture(*texture);
-        this->shape.scale(.3f,.3f);
+        this->shape.scale(.09f,.09f);
       this->shape.setPosition(pos);
 
 
         }
 };
+
+class sheild
+{
+public:
+    Sprite shape;
+
+    sheild(Texture *texture,Vector2f pos)
+    {
+
+        this->shape.setTexture(*texture);
+          //shape.setOrigin(-150,-150);
+        this->shape.scale(.2f,.2f);
+      this->shape.setPosition(pos.x-80,pos.y);
+
+
+        }
+};
+
 void main_menu()
 {
 
@@ -182,14 +212,20 @@ main_menu();
 void g1()
 
     {
+        window.setFramerateLimit(60);
         srand(time(0));
-        Texture texture,shiptex;
+        Texture texture,shiptex,sheildtex;
     texture.loadFromFile("solderAll.png");
+sheildtex.loadFromFile("Reynos Shield.png");
+
+    Sprite sg;
+    sg.setTexture(sheildtex);
+
 
 
     IntRect recsourcesprite(0,0,129,181),resourcesprite(0,181,129,387);
     Sprite sp(texture,recsourcesprite);
-  sp.setScale(.7f,.7f);
+  sp.setScale(.4f,.4f);
     sp.setOrigin(sp.getPosition().x+115,sp.getPosition().y+50);
     sp.setPosition(200.f,500.f);
 
@@ -199,6 +235,8 @@ void g1()
     ship.setTexture(&shiptex);
     ship.setPosition(0,66);
 
+//        Texture bultex;
+//        bultex.loadFromFile("billet.jpg");
 
         Texture background1;
         int hp=10000;
@@ -212,18 +250,21 @@ void g1()
     stonetex.loadFromFile("stne.png");
 
     Texture tex;
-    tex.loadFromFile("iruytruii.jpg");
+    tex.loadFromFile("222-2221172_preview-coin-sprite-sheet.png");
 
-     IntRect rectsourcesprite(0,0,70,70);
-    Sprite s(tex,rectsourcesprite);
+     IntRect ectsourcesprite(0,0,310,350);
+    Sprite s(tex,ectsourcesprite);
+s.setScale(.01,.01);
 
-Clock clock,cloc,clo;
+Clock cl,clock,cloc,clo;
 
 vector<stone>stones;
  int stonetimer=0,f=-1;
 
+ vector<sheild>sgs;
+
  vector<coin>coins;
- int coinfalltimer=0;
+ int coinfalltimer=0,bultimer=0,sheildtimer=0;
 
     Font font;
     font.loadFromFile("AGENTORANGE.TTF");
@@ -248,7 +289,9 @@ vector<stone>stones;
 
 ///     bullet    //////////
     bullet b1;
+   // b1.setTexture()
     vector<bullet>bullets;
+
     Texture tex1,tex2,tex4,tex5;
     tex1.loadFromFile("Tau_Beas reverse t.png");
 tex2.loadFromFile("Tau_Beas reverse t.png");
@@ -257,7 +300,7 @@ tex5.loadFromFile("mothman-transparent-adorable-3.png");
 
         RectangleShape enemy1,enemy2;
     vector<RectangleShape>enemies1,enemies2;
-    int enemycount=20;
+    int enemycount=20,mlk=0;
     //enemy.setFillColor(Color::Green);
     enemy1.setSize(Vector2f(70.f,35.f));
    enemy1.setOrigin(enemy1.getSize().x,0);
@@ -278,7 +321,7 @@ enemy2.setTexture(&tex2);
     Vector2f ain;
 
 
-    float c,v,m,p,q,r,z=-.2;
+    float c,v,m,p,q,r,z=-.2,o=0.0,n=0.0;
 
     while(window.isOpen()&&hp>0)
     {
@@ -316,14 +359,15 @@ enemy2.setTexture(&tex2);
 
         if(Keyboard::isKeyPressed(Keyboard::Up))
             {sp.move(0,-10.f);
-
+n-=4;
             }
         if(Keyboard::isKeyPressed(Keyboard::Down))
             {sp.move(0,10.f);
+            n+=4;
          }
         if(Keyboard::isKeyPressed(Keyboard::Right))
             {sp.move(4.f,0);
-
+o+=4;
   if(cloc.getElapsedTime().asSeconds()>.09f)
         {if(recsourcesprite.left>=382)
             recsourcesprite.left=0;
@@ -339,6 +383,7 @@ enemy2.setTexture(&tex2);
             }
         if(Keyboard::isKeyPressed(Keyboard::Left))
            {sp.move(-4.f,0);
+           o-=4;
    if(clo.getElapsedTime().asSeconds()>.09f)
         {if(resourcesprite.left<=0)
             resourcesprite.left=382;
@@ -349,8 +394,6 @@ enemy2.setTexture(&tex2);
             clo.restart();
 
         }
-
-
 
 }
 
@@ -377,16 +420,18 @@ enemy2.setTexture(&tex2);
        ///      ship moving   ////
 
 
-  int  dir;
+
            if(ship.getPosition().x>=window.getSize().x-ship.getSize().x)
             dir=0;
             if(dir==0)
-                {ship.move(-2,0);
+                {
+                    ship.move(-2,0);
                 }
     if(ship.getPosition().x<=0)
            dir=1;
            if(dir==1)
-                {ship.move(2,0);
+                {
+                    ship.move(2,0);
                 }
 
 
@@ -474,10 +519,14 @@ enemies2[i].setTexture(&tex2);
         {
             b1.shape.setPosition(playercenter);
             b1.currentvelocity=aimdirnorm*b1.maxspeed;
-
+       // b1.setTexture(&bultex);
+       if(bultimer<=15)
+        bultimer++;
+       if(bultimer==15)
+       {bultimer=0;
             bullets.push_back(bullet(b1));
         }
-
+    }
         for(size_t i=0; i<bullets.size(); i++)
         {
             bullets[i].shape.move(bullets[i].currentvelocity);
@@ -497,6 +546,9 @@ bullets.erase(bullets.begin()+i);
 score+=3;
 break;
 }
+
+    }
+
       for(size_t k=0;k<enemies2.size();k++)
     {if(bullets[i].shape.getGlobalBounds().intersects(enemies2[k].getGlobalBounds()))
 {enemies2.erase(enemies2.begin()+k);
@@ -506,9 +558,6 @@ break;
 }
 
     }
-    }
-
-
 
 
             ///  /         stone  collision    ////////
@@ -531,6 +580,75 @@ break;
 
 
         }
+
+               ///    sheild movement     /////////////
+
+ for(size_t i=0;i<sgs.size();i++)
+{
+    if(o>=4)
+        o=4;
+    if(n>=4)
+        n=4;
+
+
+if(mlk>=20)
+ {sgs.erase(sgs.begin()+i);
+mlk=0;
+break;
+}
+   if(sgs[i].shape.getPosition().x<200)
+    {sgs[i].shape.setPosition(Vector2f(200.f,sgs[i].shape.getPosition().y));
+o=0;
+     }
+    if(sgs[i].shape.getPosition().x>1200)
+     {sgs[i].shape.setPosition(Vector2f(1200.f,sgs[i].shape.getPosition().y));
+o=0;
+     }
+
+if(sgs[i].shape.getPosition().y>500)
+      {sgs[i].shape.setPosition(Vector2f(sgs[i].shape.getPosition().x,500.f));
+ n=0;
+      }
+    if(sgs[i].shape.getPosition().y<450)
+      {sgs[i].shape.setPosition(Vector2f(sgs[i].shape.getPosition().x,450.f));
+      n=0;
+      }
+
+      if(sgs[i].shape.getGlobalBounds().intersects(sp.getGlobalBounds()))
+        sgs[i].shape.setPosition(sp.getPosition().x-80,sp.getPosition().y-30);
+
+    sgs[i].shape.move(o,n);
+
+    o=n=0;
+ for(size_t k=0;k<enemies1.size();k++)
+    {if(sgs[i].shape.getGlobalBounds().intersects(enemies1[k].getGlobalBounds()))
+{enemies1.erase(enemies1.begin()+k);
+mlk+=3;
+score+=3;
+break;
+}}
+
+      for(size_t k=0;k<enemies2.size();k++)
+    {if(sgs[i].shape.getGlobalBounds().intersects(enemies2[k].getGlobalBounds()))
+{enemies2.erase(enemies2.begin()+k);
+score+=3;mlk+=3;
+break;
+}}
+
+
+            ///  /         stone  collision    ////////
+    for(size_t k=0;k<stones.size();k++)
+{
+    if(sgs[i].shape.getGlobalBounds().intersects(stones[k].shape.getGlobalBounds()))
+    {  stones.erase(stones.begin()+k);
+       score+=stones[k].hpmax;mlk+=3;
+        break;
+    }
+    }
+
+}
+
+
       ///  update enemies     ////
 if(stonetimer<40)
     stonetimer++;
@@ -551,6 +669,8 @@ stonetimer=-100;
   }
 }
 
+
+
 ///      update coins ///
 if(coinfalltimer<750)
     coinfalltimer++;
@@ -564,13 +684,13 @@ coinfalltimer=0;
     coins[i].shape.move(0,2.f);
 
         if(clock.getElapsedTime().asSeconds()>.05f)
-        {if(rectsourcesprite.left>=202)
-            rectsourcesprite.left=0;
+        {if(ectsourcesprite.left>=723)
+            ectsourcesprite.left=0;
             else
-            rectsourcesprite.left+=80;
+            ectsourcesprite.left+=300;
 
-            coins[i].shape.setTextureRect(rectsourcesprite);
-           // coins[i].shape.move(0,.3f);
+            coins[i].shape.setTextureRect(ectsourcesprite);
+           //coins[i].shape.set(0,.3f);
             clock.restart();
 
         }
@@ -578,15 +698,19 @@ coinfalltimer=0;
     if(coins[i].shape.getPosition().y>=560)
         coins.erase(coins.begin()+i);
     if(coins[i].shape.getGlobalBounds().intersects(sp.getGlobalBounds()))
-  {coins.erase(coins.begin()+i);
+  {    sgs.push_back(sheild(&sheildtex,coins[i].shape.getPosition()));
+      coins.erase(coins.begin()+i);
+
     hp+=10;
- coins.push_back(coin(&tex,ship.getPosition()));
+ //coins.push_back(coin(&tex,ship.getPosition()));
   }
 }
 
 
 
 ///   enemy  out of area   remove   ////////////
+
+
         for(size_t i=0;i<enemies1.size();i++)
         {
             if(enemies1[i].getPosition().x<0||enemies1[i].getPosition().x>window.getSize().x
@@ -655,7 +779,7 @@ window.draw(back1);
              for(size_t i=0; i<stones.size(); i++)
         {
             char ara[100];
-        sprintf(ara,"\n         %d",stones[i].hp);
+        sprintf(ara,"  %d",stones[i].hp);
        enhptext.setString(ara);
         enhptext.setPosition(stones[i].shape.getPosition().x,stones[i].shape.getPosition().y);
            window.draw(enhptext);
@@ -664,6 +788,10 @@ window.draw(back1);
  for(size_t i=0; i<coins.size(); i++)
         {
             window.draw(coins[i].shape);
+        }
+         for(size_t i=0; i<sgs.size(); i++)
+        {
+            window.draw(sgs[i].shape);
         }
             window.draw(ship);
             window.draw(sp);
@@ -690,12 +818,10 @@ window.draw(back1);
     IntRect recsourcesprite(0,0,129,181),resourcesprite(0,181,129,387);
     Sprite sp(texture,recsourcesprite);
 
-
-
     texture.loadFromFile("solderAll.png");
 
 
-  sp.setScale(.7f,.7f);
+  sp.setScale(.9f,.9f);
     sp.setOrigin(sp.getPosition().x+115,sp.getPosition().y+50);
     sp.setPosition(200.f,500.f);
 Vertex line;
@@ -707,7 +833,7 @@ Vertex line;
 	bool done = false;
 	while (done == false)
 	{
-		window.clear();
+window.clear();
 
 		Event event;
 		while (window.pollEvent(event))
@@ -797,15 +923,17 @@ else
         Vertex(Vector2f(startPos.x,startPos.y))
 ,Vertex(Vector2f(mousePos.x,mousePos.y))  };
 line[0].position=Vector2f(startPos.x,startPos.y);
-
-
+//sp.rotate(90.f);
+ //sp.clear();
 if (isDrawRectangle)
 			window.draw(line,2,Lines);
         window.draw(sp);
         // window.draw(spe);
 		window.display();
-	}
 
+
+
+	}
 
 }
 
